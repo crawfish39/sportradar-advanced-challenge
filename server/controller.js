@@ -6,6 +6,7 @@ const scheduleController = {};
 
 scheduleController.uploadToDatabase = async jsonData => {
     const input = await jsonData;
+    if(!input) return
     // const test = JSON.stringify(JSON.parse(input).slice());
     // fs.writeFile("input.json", test, (err) => {
     //     if (err)
@@ -24,12 +25,13 @@ scheduleController.uploadToDatabase = async jsonData => {
     //   console.log(SQLqueries.setJSON(test))
     await query(SQLqueries.dropPlayerTable);
     await query(SQLqueries.createPlayerTable);
-    const output = await client.query(SQLqueries.setJSON(input))
+    await client.query(SQLqueries.setJSON(input))
 }
 
 
 scheduleController.monitorGoLive = async () => {
     try {
+        const parsedPlayerData = {};
         const scheduleData = await getSchedule();
         // check which games are going on right now
         const todaysGames = scheduleData.dates[0].games;
@@ -38,33 +40,31 @@ scheduleController.monitorGoLive = async () => {
             if (todaysGames[i].status.detailedState === 'In Progress') {
                 const gameData = await getGameData(todaysGames[i].link);
                 console.log(gameData.gamePk)
-            }
-
-            const parsedPlayerData = {};
-
-            const gameData = await getGameData('/api/v1/game/2022010062/feed/live');
-            const players = gameData.gameData.players;
-            for (const player in players) {
-                parsedPlayerData[players[player].id] = {
-                    "player_id": players[player].id,
-                    "player_name": players[player].hasOwnProperty('fullName') ? players[player].fullName.replace(/[^a-z]/gi,' ') : '',
-                    "team_id": players[player].hasOwnProperty('currentTeam') ? players[player].currentTeam.id : null,
-                    "team_name": players[player].hasOwnProperty('currentTeam') ? players[player].currentTeam.name : '',
-                    "player_age": players[player].hasOwnProperty('currentAge') ? players[player].currentAge : null,
-                    "player_number": players[player].hasOwnProperty('primaryNumber') ? players[player].primaryNumber : null,
-                    "player_position": players[player].hasOwnProperty('primaryPosition') ? players[player].primaryPosition.name : '',
-                    "assists": 0,
-                    "goals": 0,
-                    "hits": 0,
-                    "points": 0,
-                    "penalty_minutes": 0
+    
+                const players = gameData.gameData.players;
+                for (const player in players) {
+                    parsedPlayerData[players[player].id] = {
+                        "player_id": players[player].id,
+                        "player_name": players[player].hasOwnProperty('fullName') ? players[player].fullName.replace(/[^a-z]/gi,' ') : '',
+                        "team_id": players[player].hasOwnProperty('currentTeam') ? players[player].currentTeam.id : null,
+                        "team_name": players[player].hasOwnProperty('currentTeam') ? players[player].currentTeam.name : '',
+                        "player_age": players[player].hasOwnProperty('currentAge') ? players[player].currentAge : null,
+                        "player_number": players[player].hasOwnProperty('primaryNumber') ? players[player].primaryNumber : null,
+                        "player_position": players[player].hasOwnProperty('primaryPosition') ? players[player].primaryPosition.name : '',
+                        "assists": 0,
+                        "goals": 0,
+                        "hits": 0,
+                        "points": 0,
+                        "penalty_minutes": 0
+                    }
+    
                 }
-
+                const liveDataAway = gameData.liveData.boxscore.teams.away.players;
+                const liveDataHome = gameData.liveData.boxscore.teams.home.players;
+                statHelper(liveDataAway);
+                statHelper(liveDataHome);
             }
-            const liveDataAway = gameData.liveData.boxscore.teams.away.players;
-            const liveDataHome = gameData.liveData.boxscore.teams.home.players;
-            statHelper(liveDataAway);
-            statHelper(liveDataHome);
+
             function statHelper(liveDataTeam) {
                 for (const player in liveDataTeam) {
                     if (liveDataTeam[player].stats.hasOwnProperty('skaterStats')) {
