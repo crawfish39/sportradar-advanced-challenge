@@ -39,7 +39,7 @@ scheduleController.monitorGoLive = async () => {
             console.log(todaysGames[i].status.detailedState)
             if (todaysGames[i].status.detailedState === 'In Progress') {
                 const gameData = await getGameData(todaysGames[i].link);
-                console.log(gameData.gamePk)
+                console.log('gamePk: ',gameData.gamePk)
     
                 const players = gameData.gameData.players;
                 for (const player in players) {

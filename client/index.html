@@ -3,16 +3,11 @@
     <head>
         <meta charset="UTF-8">
         <title>NHL Schedule Monitor</title>
+        <script src="./index.js"></script>
     </head>
     <body>
-        <form action ="/NHLdata" method="POST">
-            <label for="gamePk">gamePk:</label>
-            <input type="text" id="gamePk" name="gamePk" placeholder="2022010049"><br><br>
-            <label for="gameStatus">game status:</label>
-            <input type="text" id="gameStatus" name="gameStatus" placeholder="Live"><br><br>
-            <input type="submit" value="Submit"/>
-        </form>
-
-        <p>Enter the gamePk and change the status to "Live". Then click the "Submit" button to ingest game data.</p>
+        <input type="text" id="gameURL" name="gameURL" size="50"placeholder="/api/v1/game/2022010056/feed/live"><br><br>
+        <button id="submit" type="submit">Submit</button>
+        <p>Enter the gameURL for the game you wish to see stats for. Then click the "Submit" button to ingest game data.</p>
     </body>
 </html>

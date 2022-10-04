@@ -1,7 +1,8 @@
 import path from 'path';
 import cors from 'cors';
 import express, { urlencoded, json } from 'express';
-import { scheduleController } from './controller.js';
+import { scheduleController } from './scheduleController.js';
+import { statsController } from './statsController.js';
 import cron from 'node-cron';
 
 
@@ -42,9 +43,12 @@ cron.schedule('*/10 * * * * *', () => {
 // );
 
 app.post('/NHLdata',
-    // scheduleController.getGameData,
+    statsController.getGameStats,
     (req, res) => {
-        res.json({ 'request': 'i hear you' });
+        const body = {
+            stats: res.locals.stats
+        }
+        res.status(200).json(body);
     }
 );
 
