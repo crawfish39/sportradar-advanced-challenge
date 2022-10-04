@@ -24,8 +24,11 @@ app.get('/', (req, res) => {
     return res.sendFile(path.join(__dirname, '../client/index.html'));
 });
 
-cron.schedule('*/10 * * * * *',
-    scheduleController.monitorGoLive,
+cron.schedule('*/10 * * * * *', () => {
+    scheduleController.uploadToDatabase(
+        scheduleController.monitorGoLive()
+        )
+}
 );
 
 // app.get('/scheduleData',

@@ -10,12 +10,14 @@ const createDatabase = async () => {
     try {
         client.connect(err => {
             if (err) {
-              console.error('connection error', err.stack)
+                console.error('connection error', err.stack)
             } else {
-              console.log('Database connected')}});
+                console.log('Database connected')
+            }
+        });
 
-        await client.query(SQLqueries.dropScheduleTable);
-        await client.query(SQLqueries.createScheduleTable);
+        await client.query(SQLqueries.dropPlayerTable);
+        await client.query(SQLqueries.createPlayerTable);
         return true;
     } catch (error) {
         console.error(error.stack);
@@ -30,12 +32,17 @@ createDatabase().then(result => {
 });
 
 const query = async (text, params) => {
-    const start = Date.now();
-    const res = await client.query(text, params);
-    const duration = Date.now() - start;
-    console.log('executed query', { text, duration, rows: res.rowCount });
-    return res;
+    try {
+        const start = Date.now();
+        const res = await client.query(text, params);
+        const duration = Date.now() - start;
+        console.log('executed query', { text, duration, rows: res.rowCount });
+        return res;
+    } catch (err) {
+        console.log(err.stack)
+    }
 }
+
 
 const connect = async () => {
     return await client.connect();
